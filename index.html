@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FlashCards" />
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f5f0e8" media="(prefers-color-scheme: light)" />
+  <meta name="description" content="A beautiful, offline-capable flashcard app for learning words and translations." />
+
+  <title>FlashCards</title>
+
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Fonts: Fraunces (display/serif) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════ MAIN APP ═══ -->
+  <div id="app">
+
+    <!-- ─── Header ─── -->
+    <header id="app-header">
+      <div class="header-left">
+        <button id="btn-menu" class="icon-btn" aria-label="Menu" title="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>
+          </svg>
+        </button>
+      </div>
+      <div class="header-title">
+        <span id="deck-name-display">My Deck</span>
+        <span id="card-counter" class="card-counter">0 / 0</span>
+      </div>
+      <div class="header-right">
+        <button id="btn-shuffle" class="icon-btn" aria-label="Shuffle" title="Shuffle cards">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── Progress Bar ─── -->
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+
+    <!-- ─── Card Stage ─── -->
+    <main id="card-stage">
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden">
+        <div class="empty-icon">✦</div>
+        <h2 class="empty-title">No cards yet</h2>
+        <p class="empty-desc">Tap the button below to add your first flashcard.</p>
+        <button class="btn-primary" id="btn-add-first">+ Add a Card</button>
+      </div>
+
+      <!-- Card Viewport -->
+      <div id="card-viewport" class="hidden">
+        <div id="card-wrapper">
+          <div id="flashcard" class="flashcard">
+            <div class="card-face card-front">
+              <div class="card-label">word</div>
+              <div class="card-content" id="card-front-text">Hello</div>
+              <div class="card-hint">swipe ↑ to reveal</div>
+            </div>
+            <div class="card-face card-back">
+              <div class="card-label">translation</div>
+              <div class="card-content" id="card-back-text">Hola</div>
+              <div class="card-hint">swipe ↓ to hide</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Known / Unknown buttons -->
+        <div id="rating-buttons">
+          <button id="btn-unknown" class="rating-btn unknown" title="Still learning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            <span>Learning</span>
+          </button>
+          <button id="btn-known" class="rating-btn known" title="I know this">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Known</span>
+          </button>
+        </div>
+
+        <!-- Nav Dots -->
+        <div id="nav-dots-wrapper">
+          <div id="nav-dots"></div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ─── Bottom Toolbar ─── -->
+    <nav id="bottom-bar">
+      <button class="tool-btn" id="btn-prev" title="Previous card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <button class="tool-btn add-btn" id="btn-add-card" title="Add card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+      <button class="tool-btn" id="btn-next" title="Next card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </nav>
+
+  </div><!-- /#app -->
+
+
+  <!-- ═══════════════════════════════════════ SIDE MENU ═══ -->
+  <div id="menu-overlay" class="overlay hidden"></div>
+  <aside id="side-menu" class="hidden">
+    <div class="menu-header">
+      <span class="menu-title">FlashCards</span>
+      <button id="btn-close-menu" class="icon-btn" aria-label="Close menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="menu-stats">
+      <div class="stat-chip">
+        <span class="stat-num" id="stat-total">0</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-chip known-chip">
+        <span class="stat-num" id="stat-known">0</span>
+        <span class="stat-label">Known</span>
+      </div>
+      <div class="stat-chip unknown-chip">
+        <span class="stat-num" id="stat-unknown">0</span>
+        <span class="stat-label">Learning</span>
+      </div>
+    </div>
+
+    <div class="menu-progress-bar">
+      <div class="menu-progress-fill" id="menu-progress-fill"></div>
+    </div>
+
+    <ul class="menu-list">
+      <li><button class="menu-item" id="menu-manage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Manage Cards
+      </button></li>
+      <li><button class="menu-item" id="menu-import-bulk">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Bulk Import
+      </button></li>
+      <li><button class="menu-item" id="menu-export">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export JSON
+      </button></li>
+      <li><button class="menu-item" id="menu-import-json">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+        Import JSON
+      </button></li>
+      <li><button class="menu-item" id="menu-reset-progress">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Reset Progress
+      </button></li>
+      <li><button class="menu-item danger" id="menu-reset-all">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Delete All Cards
+      </button></li>
+    </ul>
+
+    <div class="menu-footer">Made with ♥ · Offline &amp; Private</div>
+  </aside>
+
+
+  <!-- ═══════════════════════════════════════ MODALS ═══ -->
+
+  <!-- Add / Edit Card Modal -->
+  <div id="modal-card" class="modal hidden">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <h2 class="modal-title" id="modal-card-title">New Card</h2>
+      <div class="form-group">
+        <label class="form-label" for="input-front">Word / Phrase (front)</label>
+        <textarea id="input-front" class="form-input" rows="2" placeholder="e.g. bonjour" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="input-back">Translation (back)</label>
+        <textarea id="input-back" class="form-input" rows="2" placeholder="e.g. hello / good day" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modal-card-cancel">Cancel</button>
+        <button class="btn-primary" id="modal-card-save">Save Card</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Import Modal -->
+  <div id="modal-bulk" class="modal hidden">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <h2 class="modal-title">Bulk Import</h2>
+      <p class="modal-desc">Enter one card per line, separated by a tab or comma:<br><code>word, translation</code></p>
+      <div class="form-group">
+        <textarea id="input-bulk" class="form-input bulk-input" rows="10" placeholder="hello, hola&#10;cat, gato&#10;thank you, gracias" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modal-bulk-cancel">Cancel</button>
+        <button class="btn-primary" id="modal-bulk-save">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Cards Modal -->
+  <div id="modal-manage" class="modal hidden">
+    <div class="modal-sheet modal-sheet-tall">
+      <div class="modal-handle"></div>
+      <h2 class="modal-title">Manage Cards</h2>
+      <div id="manage-list" class="manage-list"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" id="modal-manage-close">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  <div id="modal-confirm" class="modal hidden">
+    <div class="modal-sheet confirm-sheet">
+      <div class="modal-handle"></div>
+      <h2 class="modal-title" id="confirm-title">Are you sure?</h2>
+      <p class="modal-desc" id="confirm-desc">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="confirm-cancel">Cancel</button>
+        <button class="btn-danger" id="confirm-ok">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for JSON import -->
+  <input type="file" id="file-import" accept=".json" style="display:none" />
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
